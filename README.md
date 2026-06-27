@@ -4,6 +4,20 @@
 
 ---
 
+## O que o case pede
+
+Este case avalia cinco critérios, e cada entrega deste repositório responde diretamente a um deles:
+
+| Critério | O que é avaliado | Onde está a resposta |
+|---|---|---|
+| **Limpeza** | Identificou e tratou os problemas antes de analisar? Documentou as decisões? | `notebooks/01_limpeza_e_diagnostico.ipynb` + seção abaixo |
+| **Raciocínio analítico** | Foi além do óbvio? Questionou a pergunta antes de responder? | `notebooks/02_analise_e_cruzamentos.ipynb` + seção de achados |
+| **Comunicação** | O documento pode ser lido pelo Head de Produto sem jargão técnico? | Este README + Dashboard executivo |
+| **Propositivo** | Chegou em uma recomendação com hipótese e critério de sucesso? | Propostas 1 e 2 abaixo |
+| **Profundidade** | Explorou múltiplas variáveis ou ficou só na superfície? | +10 variáveis testadas, validação estatística com Qui-Quadrado |
+
+---
+
 ## O problema de negócio
 
 Todo dia, milhares de leitores abrem a newsletter e encaram uma palavra. Alguns voltam no dia seguinte. Outros somem depois da primeira partida. A pergunta central deste case é simples — e difícil:
@@ -28,6 +42,55 @@ Para responder, trabalhamos com duas métricas de retenção:
 | `user_profile.csv` | Respostas de pesquisa de perfil (amostra) | ~800 usuários |
 
 Os arquivos brutos estão em `data/raw/` e **não devem ser alterados**. Toda transformação gera versões documentadas em `data/processed/`.
+
+---
+
+## Estrutura do repositório
+
+```
+palavritas-retention-case/
+│
+├── data/
+│   ├── raw/                                    # CSVs originais — NÃO ALTERAR
+│   │   ├── palavritas_sessions.csv
+│   │   ├── palavritas_attempts.csv
+│   │   └── user_profile.csv
+│   └── processed/
+│       ├── palavritas_sessions_silver.csv      # Sessões limpas
+│       ├── palavritas_attempts_silver.csv      # Tentativas limpas
+│       ├── user_profile_silver.csv             # Perfil normalizado
+│       └── palavritas_analytics_gold.csv       # Tabela fato para BI (39.850 linhas)
+│
+├── docker/                                     # Configuração de ambiente containerizado
+│   └── docker-compose.yml
+│
+├── docs/                                       # Documentação adicional do case
+│
+├── images/                                     # Capturas do dashboard exportado
+│   ├── dashboard_pt1.png                       # Atos 1 e 2 — Baseline e Comportamento no Tabuleiro
+│   └── dashboard_pt2.png                       # Ato 3 — Sinergia do Ecossistema e Propostas
+│
+├── notebooks/
+│   ├── 01_limpeza_e_diagnostico.ipynb          # Pipeline de limpeza e decisões documentadas
+│   └── 02_analise_e_cruzamentos.ipynb          # Análise exploratória, testes e export
+│
+├── output/                                     # Artefatos gerados (gráficos, exports)
+│
+├── sql/                                        # Queries que alimentam cada visual do dashboard
+│   ├── 01_kpi_total_sessoes.sql
+│   ├── 02_kpi_retencao_global_d1.sql
+│   ├── 03_kpi_retencao_global_d30.sql
+│   ├── 04_retencao_por_resultado_d1.sql
+│   ├── 05_top10_palavras_dificeis_d1.sql
+│   ├── 06_bottom10_palavras_faceis_d1.sql
+│   └── 07_impacto_newsletter_d30.sql
+│
+├── src/                                        # Código-fonte auxiliar
+├── requirements.txt
+└── README.md                                   # ← você está aqui
+```
+
+> **Ponto de entrada recomendado:** comece pelo `README.md` para entender o raciocínio geral, depois abra os notebooks na ordem numérica: limpeza → análise → exportação da tabela gold → dashboard.
 
 ---
 
@@ -140,7 +203,7 @@ Com base nos achados, estruturamos duas propostas no formato que o time de Produ
 
 ---
 
-### Proposta 1 — Rotação de Dificuldade Dinâmica
+### Proposta 1 — Curadoria Dinâmica de Dificuldade (Foco em D1)
 
 **Hipótese:** Palavras intencionalmente difíceis e inusitadas geram o sentimento de "revanche" e aumentam o retorno D1, porque o usuário não resolve a partida de forma satisfatória e quer tentar de novo.
 
@@ -150,7 +213,7 @@ Com base nos achados, estruturamos duas propostas no formato que o time de Produ
 
 ---
 
-### Proposta 2 — Sinergia de Ecossistema
+### Proposta 2 — O Loop Gamificado (Foco em D30)
 
 **Hipótese:** Usuários que leem a newsletter antes de jogar retêm 7,3 p.p. a mais em D30. Integrar os dois produtos de forma explícita amplifica esse efeito.
 
@@ -160,57 +223,60 @@ Com base nos achados, estruturamos duas propostas no formato que o time de Produ
 
 ---
 
-## Em Desenvolvimento: Dashboard Analítico
+## Dashboard Analítico — Entregue ✅
 
-O projeto está na reta final. As etapas concluídas:
+O painel executivo foi desenvolvido em **Looker Studio** com a tabela gold `palavritas_analytics_gold.csv` (39.850 sessões, uma por linha) como fonte de dados única.
 
-- [x] Limpeza e diagnóstico dos dados
-- [x] Análise exploratória e cruzamentos
-- [x] Validação estatística
-- [x] Propostas acionáveis para Produto
-- [ ] **Dashboard interativo (última etapa)**
+O dashboard foi estruturado em **3 atos narrativos**, espelhando o raciocínio analítico deste README:
 
-A base final limpa e consolidada — `data/processed/palavritas_analytics_gold.csv` (**39.850 linhas**, uma sessão por linha) — já está exportada e pronta para conexão com uma ferramenta de BI (**Looker Studio**, **Metabase** ou similar).
+### Ato 1 — O Norte: Saúde Geral do Produto e Baseline de Retenção
 
-O painel executivo permitirá ao time de Produto:
+Estabelece o volume total analisado e define as linhas de base que todo o restante da análise usa como referência.
 
-- Acompanhar D1 e D30 em tempo real por coorte
-- Comparar retenção por palavra, resultado da partida e abertura de newsletter
-- Monitorar o impacto das propostas após implementação
+| KPI | Valor |
+|---|---|
+| Total de Sessões Analisadas | **39.899** |
+| Retenção Global D30 | **31,93%** |
+| Retenção Global D1 | **22,14%** |
 
-Esta é a última entrega bônus do case.
+### Ato 2 — O Comportamento no Tabuleiro (Retenção D1)
 
----
+Responde o que faz o jogador voltar no dia seguinte. Inclui:
 
-## Estrutura do repositório
+- **Gráfico de barras:** Retenção D1 por resultado da partida (`lose` 22,49% vs `win` 21,91%) — A Mecânica da Frustração.
+- **Tabela ranqueada:** Top 10 palavras que mais retêm (com volume mínimo de 100 partidas), encabeçada por "preto" (24,63%), "jogos" (24,32%) e "pazão" (23,97%).
+- **Gráfico de rosca:** Top 10 palavras com menor retenção (as "fáceis" — tempo, nuvem, fraco, rosto), com destaque para o volume total de 15.996 sessões nesse grupo.
 
-```
-├── data/
-│   ├── raw/                              # CSVs originais (intocáveis)
-│   └── processed/
-│       ├── palavritas_sessions_silver.csv
-│       ├── palavritas_attempts_silver.csv
-│       ├── user_profile_silver.csv
-│       └── palavritas_analytics_gold.csv   # Tabela fato para BI
-├── notebooks/
-│   ├── 01_limpeza_e_diagnostico.ipynb    # Pipeline de limpeza
-│   └── 02_analise_e_cruzamentos.ipynb    # Análise, testes e export
-├── requirements.txt
-└── README.md
-```
+![Dashboard — Atos 1 e 2: Baseline de Retenção e Comportamento no Tabuleiro](images/dashboard_pt1.png)
+
+### Ato 3 — A Sinergia do Ecossistema e Próximos Passos
+
+Cruza o comportamento de leitura da newsletter com a sobrevivência de longo prazo (D30).
+
+- **Gráfico de barras horizontais:** Retenção D30 por hábito de leitura — "Lê antes de jogar" (37,8%) vs "Não lê antes" (30,5%) — diferença de 7,3 p.p. validada estatisticamente.
+- **Proposta 1 e Proposta 2** apresentadas no próprio painel como cards acionáveis para o time de Produto, com racional, ação sugerida e critério de sucesso mensurado.
+
+![Dashboard — Ato 3: Sinergia do Ecossistema e Propostas Acionáveis](images/dashboard_pt2.png)
 
 ---
 
 ## Como reproduzir
 
 ```bash
+# 1. Clone o repositório e configure o ambiente
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-jupyter notebook
-```
 
-Abra os notebooks na ordem numérica para seguir o raciocínio completo: limpeza → análise → exportação da tabela gold.
+# 2. Abra os notebooks na ordem
+jupyter notebook
+
+# 3. Execute nessa sequência:
+#    01_limpeza_e_diagnostico.ipynb  → gera os arquivos silver
+#    02_analise_e_cruzamentos.ipynb  → gera palavritas_analytics_gold.csv
+
+# 4. Conecte o arquivo gold ao Looker Studio (ou Metabase) para visualizar o dashboard
+```
 
 ---
 
@@ -221,9 +287,10 @@ Abra os notebooks na ordem numérica para seguir o raciocínio completo: limpeza
 | **Python + Pandas** | Limpeza, transformação e cruzamento de dados |
 | **NumPy** | Operações numéricas |
 | **SciPy** | Teste Qui-Quadrado de independência |
-| **Matplotlib + Seaborn** | Visualizações exploratórias |
+| **Matplotlib + Seaborn** | Visualizações exploratórias nos notebooks |
 | **Jupyter** | Documentação reprodutível das análises |
+| **Looker Studio** | Dashboard executivo interativo |
 
 ---
 
-*Case em desenvolvimento — Analista de Dados (Produto & Growth) | the news*
+*Case Técnico — Analista de Dados (Produto & Growth) | the news*
