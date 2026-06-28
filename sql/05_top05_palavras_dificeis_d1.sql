@@ -1,4 +1,4 @@
--- Mapeia as 10 palavras com maior taxa de retenção D1 (Mínimo de 100 partidas)
+-- Mapeia as 5 palavras com maior taxa de retenção D1 (Mínimo de 100 partidas)
 SELECT 
     word AS "Palavra",
     COUNT(*) AS "Volume de Partidas",
@@ -7,4 +7,4 @@ FROM fato_retencao
 GROUP BY word
 HAVING COUNT(*) > 100
 ORDER BY "Retenção D1" DESC
-LIMIT 10;
+LIMIT 5;
