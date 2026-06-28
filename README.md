@@ -233,7 +233,7 @@ O dashboard foi estruturado em **3 atos narrativos**, espelhando o raciocínio a
 
 ### Ato 1 — O Norte: Saúde Geral do Produto e Baseline de Retenção
 
-Estabelece o volume total analisado e define as linhas de base que todo o restante da análise usa como referência.
+Estabelece o volume total analisado e define as linhas de base que todo o restante da análise usa como referência
 
 | KPI | Valor |
 |---|---|
